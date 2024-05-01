@@ -1,0 +1,16 @@
+{
+  "name": "monorepo_boilerplate",
+  "version": "1.0.0",
+  "description": "A Boilerplate Monorepo for Javascript Full Stack Development",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "frontend-start": "pnpm --filter frontend dev"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "author": "Zuguang Tong",
+  "license": "MIT"
+}
