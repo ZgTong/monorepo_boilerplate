@@ -26,7 +26,6 @@ module.exports = {
     },
     output: 'export',
     distDir: 'dist',
-    assetPrefix: '.',
     experimental: {
         outputFileTracingRoot: path.join(__dirname, '../../'),
     },
