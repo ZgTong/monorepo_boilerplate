@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "frontend-start": "pnpm --filter frontend dev"
+    "frontend-start": "pnpm --filter frontend dev",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write --list-different ."
   },
   "engines": {
     "node": ">=20",

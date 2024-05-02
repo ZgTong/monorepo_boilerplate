@@ -8,9 +8,7 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint",
-        "format": "prettier --check .",
-        "format:fix": "prettier --write --list-different ."
+        "lint": "next lint"
     },
     "keywords": [],
     "author": "",
