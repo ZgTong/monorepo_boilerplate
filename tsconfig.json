@@ -1,11 +1,13 @@
 {
-    "strict": true,
-    "strictNullChecks": true,
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": false,
+    "compilerOptions": {
+        "strict": true,
+        "strictNullChecks": true,
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "allowSyntheticDefaultImports": true,
+        "allowJs": true,
+    },
     "include": [
         "**/next-env.d.ts",
         "**/.next/types/**/*.ts",
