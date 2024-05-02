@@ -12,5 +12,10 @@
     "pnpm": ">=9"
   },
   "author": "Zuguang Tong",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.3",
+    "eslint-config-prettier": "^9.1.0"
+  }
 }
