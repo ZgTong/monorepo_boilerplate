@@ -44,6 +44,8 @@ The owner works alone and relies on Claude as senior engineer, reviewer, and men
 
 - **Runtime:** Node 26 (`.nvmrc`, `engines`), pnpm 12 (`packageManager` field). Prisma 7.10's preinstall check prints an "unsupported Node" warning on 26 (its `engines` field allows it); this is a known, accepted gap until Prisma 8 is stable.
 - **TypeScript:** `~6.0.3` in every package (ADR 0006). typescript-eslint does not support TS 7 yet, so don't upgrade to 7 or widen the range past 6.0.
+- **Shared versions:** dependencies used by more than one package (`typescript`, `@types/node`) are defined once in the `catalog:` section of `pnpm-workspace.yaml`. The packages reference them as `"catalog:"`. Change the version there, never in a package's `package.json`.
+- **Shared TypeScript config:** every package's `tsconfig.json` extends the root `tsconfig.base.json`, which holds the strictness and module-safety flags (`strict`, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, ...). Packages add only package-specific settings: target, module system, `lib`, `types`, `jsx`, `paths`, plugins and output. Don't relax the base flags in a package. Fix the code instead.
 - **Frontend** `packages/frontend`: Next.js 16 App Router, React 19, SCSS, static export.
 - **Backend** `packages/backend`: Express 5, TypeScript ESM, Prisma 7 + PostgreSQL 17. See `packages/backend/CLAUDE.md`.
 - **Infra** `infra/`: Terraform for AWS `ap-southeast-2`, outside the pnpm workspace. Target: ECS Fargate + RDS + S3/CloudFront. See `infra/CLAUDE.md`.
@@ -59,6 +61,7 @@ docker compose up -d postgres         # local DB (-d = --detach); needs root .en
 pnpm frontend-start                   # next dev
 pnpm --filter backend dev             # backend with watch mode
 pnpm lint                             # lint every package that has a lint script (pnpm -r = --recursive)
+pnpm typecheck                        # tsc --noEmit in every package
 pnpm --filter frontend build          # static export into packages/frontend/dist
 pnpm --filter backend test            # vitest
 pnpm format / pnpm format:fix         # prettier check / write (config: root .prettierrc.json)
@@ -72,7 +75,7 @@ The frontend has no tests yet. Its `test` script is a placeholder that exits wit
 - **Page extensions** are limited to `tsx`, `ts`, `mdx`.
 - **Lint:** ESLint 9 flat config (`eslint.config.mjs`: next core-web-vitals + typescript + prettier). Stylelint 17 runs as a separate `lint:css` step, not inside the build.
 - **Path aliases** (`packages/frontend/tsconfig.json`): `@src/*`, `@app/*`, `@components/*`, `@data/*`, `@hooks/*`, `@utils/*`, `@lib/*` map to `src/<name>/*`, and `@root/*` maps to the package root.
-- The frontend `tsconfig.json` still has `strict: false`. Turning it on is part of Phase 1.
+- With `noUncheckedIndexedAccess`, indexed access (`arr[0]`, `record[key]`) is typed `T | undefined`. Narrow the value before using it.
 
 ## Code style
 

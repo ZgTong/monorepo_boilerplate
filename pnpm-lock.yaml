@@ -162,6 +162,15 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@types/node':
+      specifier: ^26.6.5
+      version: 26.6.5
+    typescript:
+      specifier: ~6.0.3
+      version: 6.0.3
+
 importers:
 
   .:
@@ -189,7 +198,7 @@ importers:
         specifier: ^5.0.6
         version: 5.0.6
       '@types/node':
-        specifier: ^26.6.5
+        specifier: 'catalog:'
         version: 26.6.5
       '@types/pg':
         specifier: ^8.23.1
@@ -210,7 +219,7 @@ importers:
         specifier: ^4.23.15
         version: 4.23.15
       typescript:
-        specifier: ~6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
         specifier: ^5.0.5
@@ -229,7 +238,7 @@ importers:
         version: 19.3.1(react@19.3.1)
     devDependencies:
       '@types/node':
-        specifier: ^26.6.5
+        specifier: 'catalog:'
         version: 26.6.5
       '@types/react':
         specifier: 19.3.0
@@ -259,7 +268,7 @@ importers:
         specifier: ^8.1.2
         version: 8.1.2(stylelint@17.16.0(supports-color@7.2.0)(typescript@6.0.3))
       typescript:
-        specifier: ~6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
 
 packages:

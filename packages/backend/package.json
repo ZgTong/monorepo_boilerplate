@@ -23,14 +23,14 @@
     },
     "devDependencies": {
         "@types/express": "^5.0.6",
-        "@types/node": "^26.6.5",
+        "@types/node": "catalog:",
         "@types/pg": "^8.23.1",
         "@types/supertest": "^7.2.1",
         "dotenv": "^18.0.8",
         "prisma": "^7.10.1",
         "supertest": "^7.3.1",
         "tsx": "^4.23.15",
-        "typescript": "~6.0.3",
+        "typescript": "catalog:",
         "vitest": "^5.0.5"
     }
 }

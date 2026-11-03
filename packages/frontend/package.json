@@ -8,6 +8,7 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
+        "typecheck": "tsc --noEmit",
         "lint": "eslint . && pnpm lint:css",
         "lint:css": "stylelint \"src/**/*.{css,scss}\" --allow-empty-input"
     },
@@ -20,7 +21,7 @@
         "react-dom": "^19.3.1"
     },
     "devDependencies": {
-        "@types/node": "^26.6.5",
+        "@types/node": "catalog:",
         "@types/react": "19.3.0",
         "@types/react-dom": "^19.3.0",
         "eslint": "^9.39.5",
@@ -30,6 +31,6 @@
         "stylelint": "^17.16.0",
         "stylelint-config-standard-scss": "^17.0.0",
         "stylelint-order": "^8.1.2",
-        "typescript": "~6.0.3"
+        "typescript": "catalog:"
     }
 }

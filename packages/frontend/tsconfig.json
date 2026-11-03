@@ -1,16 +1,15 @@
 {
+    "extends": "../../tsconfig.base.json",
     "compilerOptions": {
+        "target": "ES2017",
         "lib": ["dom", "dom.iterable", "esnext"],
-        "rootDir": ".",
-        "skipLibCheck": true,
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "jsx": "react-jsx",
+        "types": ["node"],
+        "allowJs": true,
         "noEmit": true,
         "incremental": true,
-        "module": "esnext",
-        "esModuleInterop": true,
-        "moduleResolution": "bundler",
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "jsx": "react-jsx",
         "plugins": [
             {
                 "name": "next"
@@ -25,10 +24,7 @@
             "@hooks/*": ["./src/hooks/*"],
             "@utils/*": ["./src/utils/*"],
             "@lib/*": ["./src/lib/*"]
-        },
-        "allowJs": true,
-        "strict": false,
-        "target": "ES2017"
+        }
     },
     "include": [
         "next-env.d.ts",

@@ -1,4 +1,5 @@
 {
+    "extends": "../../tsconfig.base.json",
     "compilerOptions": {
         "target": "es2023",
         "module": "nodenext",
@@ -7,12 +8,6 @@
         "types": ["node"],
         "rootDir": "src",
         "outDir": "dist",
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "verbatimModuleSyntax": true,
         "sourceMap": true
     },
     "include": ["src"]
