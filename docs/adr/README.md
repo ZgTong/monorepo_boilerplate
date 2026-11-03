@@ -1,0 +1,13 @@
+# Architecture Decision Records
+
+Each significant technical decision gets a short, numbered record: the context, the options considered with their trade-offs, the decision, and what would make us revisit it. ADRs are never rewritten. A changed decision gets a new ADR that marks the old one `Superseded by NNNN`.
+
+Create one with `/adr <topic>` in Claude Code, or copy [`template.md`](template.md).
+
+| #                                      | Decision                                                 | Status   |
+| -------------------------------------- | -------------------------------------------------------- | -------- |
+| [0001](0001-pnpm-monorepo.md)          | pnpm workspace monorepo, Terraform outside the workspace | Accepted |
+| [0002](0002-backend-express-prisma.md) | Express 5 + Prisma 7 for the backend                     | Accepted |
+| [0003](0003-terraform-for-iac.md)      | Terraform (not CDK) for AWS infrastructure               | Accepted |
+| [0004](0004-ecs-fargate-rds.md)        | ECS Fargate + RDS PostgreSQL as the AWS runtime          | Accepted |
+| [0005](0005-node-26-runtime.md)        | Node 26 as the single runtime version                    | Accepted |

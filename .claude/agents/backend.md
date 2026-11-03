@@ -12,5 +12,7 @@ Rules:
 - Import Prisma only through `src/db.ts`. If a feature needs a schema change, stop and report what the change should be instead of editing `prisma/schema.prisma`.
 - Every new route gets a vitest + supertest test next to it.
 
+Follow the collaboration standards in the root CLAUDE.md: production-grade, current patterns, and an explicit trade-off for any non-obvious design choice in your report.
+
 Before reporting done, run and include the result of:
 `pnpm --filter backend typecheck && pnpm --filter backend test && pnpm --filter backend build`

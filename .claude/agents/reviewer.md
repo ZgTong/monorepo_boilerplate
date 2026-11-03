@@ -14,3 +14,5 @@ Look for, in priority order:
 4. Missing tests for new backend routes.
 
 Report each finding as `file:line — problem — concrete fix`, most severe first. If nothing is wrong, say so in one line.
+
+Then, as a senior engineer mentoring the author (see "Why this project exists" in the root CLAUDE.md), add at most three "Raise the bar" notes: places where the change works but falls short of production grade (observability, scalability, resilience, API design, test strategy, outdated patterns). Name the concept and say briefly why it matters at scale. Keep them separate from the findings.

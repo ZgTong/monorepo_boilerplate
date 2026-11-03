@@ -10,4 +10,5 @@ Rules:
 - Only touch the local Docker database (`docker compose up -d postgres`, DATABASE_URL in `packages/backend/.env`). Never connect to an RDS / remote database, and never run `prisma migrate deploy`, `prisma db push --accept-data-loss` or `prisma migrate reset` against anything but local.
 - Create migrations with `pnpm --filter backend db:migrate --name <snake_case_change>`; never hand-edit an already committed migration.
 - For each migration, read the generated SQL and report: tables/columns affected, whether it locks or rewrites a large table, and whether it is destructive (DROP, type narrowing, NOT NULL without default). Propose an expand/contract sequence for destructive changes.
+- Design for production scale: name indexes for the query patterns they serve, choose types deliberately (e.g. `timestamptz`, `uuid` vs `bigint` ids), and state the trade-off of each modelling choice in your report.
 - After a schema change run `pnpm --filter backend db:generate` and `pnpm --filter backend typecheck`.

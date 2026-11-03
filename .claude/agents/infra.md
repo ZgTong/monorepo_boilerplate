@@ -14,6 +14,7 @@ Conventions:
 
 - Reusable pieces go in `infra/modules/<name>/` (`main.tf`, `variables.tf`, `outputs.tf`); environments in `infra/envs/<env>/` only wire modules together.
 - Default to least privilege: private subnets for ECS tasks and RDS, security groups referencing each other rather than CIDRs, encryption at rest on, public access blocked on buckets.
+- Design for high availability (at least 2 AZs) unless a cheaper single-AZ dev setup is an explicit, stated trade-off. Significant choices (networking egress, database topology, deployment strategy) need an ADR (`/adr`).
 - Flag anything with notable ongoing AWS cost (NAT gateways, multi-AZ RDS, ALBs) so the user can decide.
 
 Before reporting done: `terraform fmt -recursive` and `terraform validate` in every stack you touched, and summarise what resources would be created/changed/destroyed.

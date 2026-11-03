@@ -23,4 +23,4 @@ pnpm --filter backend db:generate        # regenerate client (also runs on posti
 - Relative imports need the `.js` extension.
 - The app does not load `.env` itself. `dev` passes `--env-file-if-exists`, and in AWS the variables come from the ECS task definition. Required: `DATABASE_URL`; optional: `PORT` (default 4000).
 - `/health` is the liveness check for the ALB and must not touch the DB; `/health/db` checks DB connectivity.
-- Production runtime is Node 24 LTS (Prisma 7 does not support Node 26).
+- Runtime is Node 26 everywhere (ADR 0005). Prisma 7.10's preinstall prints an "unsupported Node" warning on 26, which is expected and accepted. Keep `prisma` and `@prisma/client` pinned to `^7`, because npm's `latest` tag points at an 8.0 RC.
