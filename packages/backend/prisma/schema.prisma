@@ -1,0 +1,11 @@
+// Prisma schema — https://pris.ly/d/prisma-schema
+// After editing: pnpm --filter backend db:migrate --name <change>
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}

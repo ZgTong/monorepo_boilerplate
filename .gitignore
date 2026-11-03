@@ -2,4 +2,18 @@ node_modules/
 .next/
 dist/
 .swc/
-.*.env
+.*.env.
+
+# Environment files (commit only the *.example templates)
+.env
+.env.*
+!.env.example
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+backend.hcl
