@@ -9,7 +9,7 @@
         "build": "next build",
         "start": "next start",
         "typecheck": "tsc --noEmit",
-        "lint": "eslint . && pnpm lint:css",
+        "lint": "eslint . --max-warnings 0 && pnpm lint:css",
         "lint:css": "stylelint \"src/**/*.{css,scss}\" --allow-empty-input"
     },
     "keywords": [],
@@ -21,12 +21,11 @@
         "react-dom": "^19.3.1"
     },
     "devDependencies": {
+        "@repo/eslint-config": "workspace:*",
         "@types/node": "catalog:",
         "@types/react": "19.3.0",
         "@types/react-dom": "^19.3.0",
-        "eslint": "^9.39.5",
-        "eslint-config-next": "^16.4.3",
-        "eslint-config-prettier": "^10.1.8",
+        "eslint": "catalog:",
         "sass": "^1.107.1",
         "stylelint": "^17.16.0",
         "stylelint-config-standard-scss": "^17.0.0",

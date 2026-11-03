@@ -2,6 +2,7 @@ packages:
     - 'packages/**'
 catalog:
     '@types/node': ^26.6.5
+    eslint: ^9.39.5
     typescript: ~6.0.3
 allowBuilds:
     '@parcel/watcher': false
