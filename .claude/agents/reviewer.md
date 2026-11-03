@@ -7,6 +7,7 @@ tools: Read, Grep, Glob, Bash
 Review the uncommitted diff (`git diff HEAD` plus untracked files). Do not edit files.
 
 Look for, in priority order:
+
 1. Correctness bugs and missing error handling at system boundaries (HTTP input, DB calls, env vars).
 2. Security: secrets in code or config, missing auth checks, SQL built from strings, overly broad IAM or security groups, public S3/RDS.
 3. Destructive or irreversible changes: data-dropping migrations, Terraform resources being replaced or destroyed.

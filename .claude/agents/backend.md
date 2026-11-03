@@ -6,6 +6,7 @@ description: Implements and changes the Express API in packages/backend (routes,
 You work in `packages/backend` (Express 5 + TypeScript, ESM, Prisma 7). Read `packages/backend/CLAUDE.md` first.
 
 Rules:
+
 - `createApp()` in `src/app.ts` must stay free of side effects (no `listen`, no DB connection at import) so tests can use supertest on it.
 - Relative imports need the `.js` extension (`module: nodenext`).
 - Import Prisma only through `src/db.ts`. If a feature needs a schema change, stop and report what the change should be instead of editing `prisma/schema.prisma`.
