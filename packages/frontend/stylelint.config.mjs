@@ -1,8 +1,10 @@
 /** @type {import('stylelint').Config} */
-export default {
+const config = {
     extends: ['stylelint-config-standard-scss'],
     plugins: ['stylelint-order'],
     rules: {
         'order/properties-alphabetical-order': true,
     },
 };
+
+export default config;

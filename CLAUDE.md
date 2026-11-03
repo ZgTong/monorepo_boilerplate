@@ -43,6 +43,7 @@ The owner works alone and relies on Claude as senior engineer, reviewer, and men
 ## Stack
 
 - **Runtime:** Node 26 (`.nvmrc`, `engines`), pnpm 12 (`packageManager` field). Prisma 7.10's preinstall check prints an "unsupported Node" warning on 26 (its `engines` field allows it); this is a known, accepted gap until Prisma 8 is stable.
+- **TypeScript:** `~6.0.3` in every package (ADR 0006). typescript-eslint does not support TS 7 yet, so don't upgrade to 7 or widen the range past 6.0.
 - **Frontend** `packages/frontend`: Next.js 16 App Router, React 19, SCSS, static export.
 - **Backend** `packages/backend`: Express 5, TypeScript ESM, Prisma 7 + PostgreSQL 17. See `packages/backend/CLAUDE.md`.
 - **Infra** `infra/`: Terraform for AWS `ap-southeast-2`, outside the pnpm workspace. Target: ECS Fargate + RDS + S3/CloudFront. See `infra/CLAUDE.md`.

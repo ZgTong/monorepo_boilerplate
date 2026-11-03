@@ -2,7 +2,8 @@ node_modules/
 .next/
 dist/
 .swc/
-.*.env.
+*.tsbuildinfo
+.*.env
 
 # Environment files (commit only the *.example templates)
 .env

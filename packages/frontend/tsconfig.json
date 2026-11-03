@@ -2,7 +2,6 @@
     "compilerOptions": {
         "lib": ["dom", "dom.iterable", "esnext"],
         "rootDir": ".",
-        "baseUrl": ".",
         "skipLibCheck": true,
         "noEmit": true,
         "incremental": true,
@@ -18,14 +17,14 @@
             }
         ],
         "paths": {
-            "@root/*": ["*"],
-            "@src/*": ["src/*"],
-            "@app/*": ["src/app/*"],
-            "@components/*": ["src/components/*"],
-            "@data/*": ["src/data/*"],
-            "@hooks/*": ["src/hooks/*"],
-            "@utils/*": ["src/utils/*"],
-            "@lib/*": ["src/lib/*"]
+            "@root/*": ["./*"],
+            "@src/*": ["./src/*"],
+            "@app/*": ["./src/app/*"],
+            "@components/*": ["./src/components/*"],
+            "@data/*": ["./src/data/*"],
+            "@hooks/*": ["./src/hooks/*"],
+            "@utils/*": ["./src/utils/*"],
+            "@lib/*": ["./src/lib/*"]
         },
         "allowJs": true,
         "strict": false,
