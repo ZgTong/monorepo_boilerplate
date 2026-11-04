@@ -4,8 +4,16 @@ catalog:
     '@types/node': ^26.6.5
     eslint: ^9.39.5
     typescript: ~6.0.3
+# Dependency install scripts run arbitrary code, so each one is an explicit decision.
+# Allow only what must compile or download to work; deny optional native speed-ups.
 allowBuilds:
     '@parcel/watcher': false
     '@prisma/engines': true
+    # cpu-features, ssh2: optional native crypto speed-ups for ssh2, which testcontainers
+    # only uses for Docker over SSH. Pure-JS fallback is fine. protobufjs: postinstall is a
+    # version check only.
+    cpu-features: false
     esbuild: true
     prisma: true
+    protobufjs: false
+    ssh2: false
