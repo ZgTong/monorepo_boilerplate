@@ -2,25 +2,45 @@
 name: CI
 
 on:
+    # pull_request (not pull_request_target): runs from forks get a read-only token and no secrets.
     pull_request:
     push:
         branches: [main]
+
+# Least privilege: the GITHUB_TOKEN can only read the repository. Jobs that need more
+# (e.g. deployment in Phase 2) must ask for it explicitly at job level.
+permissions:
+    contents: read
+
+# One run per branch/PR: a new push cancels the previous run of the same PR.
+# Runs on main are never cancelled, so every merged commit gets a complete result.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
     verify:
         name: Verify
         runs-on: ubuntu-24.04
+        # The default is 360 minutes; a hung step should fail fast instead of burning runner minutes.
+        timeout-minutes: 15
         steps:
+            # Actions are pinned to full commit SHAs because tags can be moved (supply-chain attacks
+            # such as tj-actions/changed-files, 2025). The trailing comment records the version.
             - name: Check out repository
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  # Do not leave the token in .git/config, where later steps (including
+                  # dependency install scripts) could read it. This job never pushes.
+                  persist-credentials: false
 
             # Must run before setup-node: setup-node's pnpm cache asks pnpm where its store lives.
             # No version input: the action reads "packageManager" from package.json.
             - name: Install pnpm
-              uses: pnpm/action-setup@v6
+              uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
 
             - name: Set up Node.js
-              uses: actions/setup-node@v7
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
               with:
                   node-version-file: .nvmrc
                   cache: pnpm
