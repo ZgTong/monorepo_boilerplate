@@ -1,11 +1,15 @@
 # Dependabot version updates (ADR 0009).
-# Scope: the SHA-pinned actions in .github/workflows. npm dependencies are a separate,
-# not-yet-made decision (Dependabot vs Renovate, pnpm catalog support).
+# Scope: the SHA-pinned actions in .github/workflows and in local composite actions.
+# npm dependencies are a separate, not-yet-made decision (Dependabot vs Renovate,
+# pnpm catalog support).
 version: 2
 updates:
     - package-ecosystem: github-actions
-      # "/" makes Dependabot scan .github/workflows (and a root action.yml, if any).
-      directory: /
+      # "/" scans .github/workflows only. Local composite actions live in their own
+      # directories and must be listed, or their pins would never be updated.
+      directories:
+          - /
+          - /.github/actions/*
       schedule:
           interval: weekly
           day: monday

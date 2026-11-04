@@ -1,0 +1,23 @@
+# Shared job setup: pnpm + Node from the repo's version files, cached store, frozen install.
+# Used by every CI job after actions/checkout (a local action can only be loaded once the
+# repository is checked out). Pins follow the same rules as workflows (ADR 0009).
+name: Setup toolchain
+description: Install pnpm and Node.js and install workspace dependencies
+
+runs:
+    using: composite
+    steps:
+        # Must run before setup-node: setup-node's pnpm cache asks pnpm where its store lives.
+        # No version input: the action reads "packageManager" from package.json.
+        - name: Install pnpm
+          uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+        - name: Set up Node.js
+          uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+          with:
+              node-version-file: .nvmrc
+              cache: pnpm
+
+        - name: Install dependencies
+          shell: bash
+          run: pnpm install --frozen-lockfile

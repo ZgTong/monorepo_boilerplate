@@ -36,19 +36,11 @@ jobs:
                   # dependency install scripts) could read it. This job never pushes.
                   persist-credentials: false
 
-            # Must run before setup-node: setup-node's pnpm cache asks pnpm where its store lives.
-            # No version input: the action reads "packageManager" from package.json.
-            - name: Install pnpm
-              uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-
-            - name: Set up Node.js
-              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-              with:
-                  node-version-file: .nvmrc
-                  cache: pnpm
-
-            - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+            # pnpm, Node.js and a frozen install, shared with the other jobs.
+            # GitHub now recommends the self-repository form `$/...`, but actionlint 1.7.12
+            # rejects it. Switch (and drop the ignore) once actionlint supports it.
+            - name: Set up toolchain
+              uses: ./.github/actions/setup # zizmor: ignore[self-repository]
 
             # Cheapest checks first so a failing run stops early (fail fast).
             # Each step calls the same root script a developer runs locally.
@@ -66,3 +58,21 @@ jobs:
 
             - name: Build
               run: pnpm build
+
+    # Runs in parallel with Verify: it needs Docker for Testcontainers (preinstalled on
+    # GitHub-hosted Ubuntu runners) and is slower, so it is kept out of the fast job (ADR 0010).
+    integration:
+        name: Integration tests
+        runs-on: ubuntu-24.04
+        timeout-minutes: 15
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - name: Set up toolchain
+              uses: ./.github/actions/setup # zizmor: ignore[self-repository]
+
+            - name: Integration tests
+              run: pnpm test:integration

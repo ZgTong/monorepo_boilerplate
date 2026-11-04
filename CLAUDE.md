@@ -63,17 +63,18 @@ pnpm frontend-start                   # next dev
 pnpm --filter backend dev             # backend with watch mode
 pnpm lint                             # lint every package that has a lint script (pnpm -r = --recursive)
 pnpm typecheck                        # tsc --noEmit in every package that has a typecheck script
-pnpm test                             # test every package that has a test script
+pnpm test                             # unit tests in every package that has a test script (no Docker)
+pnpm test:integration                 # integration tests (backend: Testcontainers PostgreSQL, needs Docker)
 pnpm build                            # build every package that has a build script (frontend: static export into packages/frontend/dist)
-pnpm --filter backend test            # vitest
 pnpm format / pnpm format:fix         # prettier check / write (config: root .prettierrc.json)
 ```
 
 The frontend has no tests yet and no `test` script, so `pnpm test` skips it.
 
-## CI (`.github/workflows/ci.yml`, ADR 0009)
+## CI (`.github/workflows/ci.yml`, ADR 0009, ADR 0010)
 
-- One job `Verify` runs `pnpm format`, `lint`, `typecheck`, `test`, `build` on every PR and on pushes to `main`. CI calls the same root scripts as local development, so change a command in `package.json`, not in the workflow.
+- Two parallel jobs on every PR and on pushes to `main`. `Verify` runs `pnpm format`, `lint`, `typecheck`, `test`, `build`. `Integration tests` runs `pnpm test:integration` (Docker is available on the runner). CI calls the same root scripts as local development, so change a command in `package.json`, not in the workflow.
+- Toolchain setup (pnpm, Node, frozen install) lives in the local composite action `.github/actions/setup`. New jobs use it after `actions/checkout` instead of repeating the steps.
 - Hardening is required, not optional: workflow-level `permissions: contents: read`, actions pinned to full commit SHAs with a `# vX.Y.Z` comment, `persist-credentials: false` on checkout, `concurrency`, `timeout-minutes`. Never use `pull_request_target`. A job that needs more permissions requests them at job level.
 - Dependabot (`.github/dependabot.yml`) keeps the action pins up to date. Verify workflow changes with `actionlint` and `zizmor` (both run via Docker) before committing.
 
