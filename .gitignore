@@ -5,8 +5,9 @@ dist/
 *.tsbuildinfo
 .*.env
 
-# Claude Code per-user settings; team-wide settings belong in .claude/settings.json
-.claude/settings.local.json
+# Claude Code per-user settings (and the temp files it writes while saving them);
+# team-wide settings belong in .claude/settings.json
+.claude/settings.local.json*
 
 # Environment files (commit only the *.example templates)
 .env
