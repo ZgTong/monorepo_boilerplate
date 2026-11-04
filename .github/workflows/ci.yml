@@ -1,0 +1,46 @@
+# Continuous integration: every pull request and every push to main must pass these checks.
+name: CI
+
+on:
+    pull_request:
+    push:
+        branches: [main]
+
+jobs:
+    verify:
+        name: Verify
+        runs-on: ubuntu-24.04
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v7
+
+            # Must run before setup-node: setup-node's pnpm cache asks pnpm where its store lives.
+            # No version input: the action reads "packageManager" from package.json.
+            - name: Install pnpm
+              uses: pnpm/action-setup@v6
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version-file: .nvmrc
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            # Cheapest checks first so a failing run stops early (fail fast).
+            # Each step calls the same root script a developer runs locally.
+            - name: Check formatting
+              run: pnpm format
+
+            - name: Lint
+              run: pnpm lint
+
+            - name: Typecheck
+              run: pnpm typecheck
+
+            - name: Test
+              run: pnpm test
+
+            - name: Build
+              run: pnpm build
