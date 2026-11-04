@@ -1,7 +1,7 @@
-# Dependabot version updates (ADR 0009).
-# Scope: the SHA-pinned actions in .github/workflows and in local composite actions.
-# npm dependencies are a separate, not-yet-made decision (Dependabot vs Renovate,
-# pnpm catalog support).
+# Dependabot (ADR 0009 for actions, ADR 0011 for npm).
+# Never push to or merge into a Dependabot branch by hand: Dependabot then stops rebasing
+# it. On a conflict, comment "@dependabot rebase" (or "@dependabot recreate" if someone
+# already pushed to the branch).
 version: 2
 updates:
     - package-ecosystem: github-actions
@@ -27,3 +27,47 @@ updates:
               update-types: [minor, patch]
       commit-message:
           prefix: ci
+
+    # npm: the whole pnpm workspace, resolved from the root pnpm-workspace.yaml.
+    - package-ecosystem: npm
+      directory: /
+      schedule:
+          interval: weekly
+          day: monday
+          time: '09:00'
+          timezone: Australia/Sydney
+      cooldown:
+          default-days: 7
+      # Few, larger PRs instead of many small ones: every npm PR rewrites pnpm-lock.yaml,
+      # so each extra open PR is another lockfile conflict waiting to happen.
+      groups:
+          # Packages that must move to a new major together; separate PRs would each fail.
+          nextjs-major:
+              applies-to: version-updates
+              patterns: ['next', 'eslint-config-next', '@next/*']
+              update-types: [major]
+          npm-minor-patch:
+              applies-to: version-updates
+              patterns: ['*']
+              update-types: [minor, patch]
+          npm-security:
+              applies-to: security-updates
+              patterns: ['*']
+      ignore:
+          # Held back on purpose; lift together with the documented reason.
+          # TypeScript stays on 6.0.x: typescript-eslint and @repo/eslint-config's peer range
+          # (<6.1.0) do not allow newer versions yet (ADR 0006). Blocks 6.1 minors as well.
+          - dependency-name: typescript
+            versions: ['>= 6.1.0']
+          # ESLint 10: eslint-plugin-react (via eslint-config-next) does not support it
+          # (ADR 0008). @eslint/js must stay on the same major as eslint.
+          - dependency-name: eslint
+            update-types: ['version-update:semver-major']
+          - dependency-name: '@eslint/js'
+            update-types: ['version-update:semver-major']
+          # @types/node majors track Node majors; it moves with .nvmrc (ADR 0005), not alone.
+          - dependency-name: '@types/node'
+            update-types: ['version-update:semver-major']
+      commit-message:
+          prefix: build
+          include: scope

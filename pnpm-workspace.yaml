@@ -17,3 +17,15 @@ allowBuilds:
     prisma: true
     protobufjs: false
     ssh2: false
+# Accepted vulnerability risks (ADR 0011). Each entry needs a reason and a review date.
+# Only for advisories that cannot be fixed inside the declared version ranges and that do
+# not reach production. Re-check with `pnpm audit` on or before the review date.
+audit:
+    ignore:
+        # minimatch ReDoS ("globparts amplification"), fixed only in >=11. Pulled in by the
+        # ESLint/typescript-eslint toolchain, which declares ^3/^5/^9/^10, so forcing 11 could
+        # break it. Dev-only; inputs are our own source globs. Review: 2027-02-01.
+        - GHSA-g3hv-75wg-m249
+        # glob AbortSignal bypass, fixed only in >=14. Pulled in by testcontainers > archiver.
+        # Dev-only (integration tests); no untrusted input. Review: 2027-02-01.
+        - GHSA-3g3m-2fjr-6pw4
