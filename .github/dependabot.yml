@@ -1,0 +1,25 @@
+# Dependabot version updates (ADR 0009).
+# Scope: the SHA-pinned actions in .github/workflows. npm dependencies are a separate,
+# not-yet-made decision (Dependabot vs Renovate, pnpm catalog support).
+version: 2
+updates:
+    - package-ecosystem: github-actions
+      # "/" makes Dependabot scan .github/workflows (and a root action.yml, if any).
+      directory: /
+      schedule:
+          interval: weekly
+          day: monday
+          time: '09:00'
+          timezone: Australia/Sydney
+      # Only propose a release once it is 7 days old. Compromised releases are usually
+      # detected and pulled within days, so we do not want to be the first to adopt them.
+      cooldown:
+          default-days: 7
+      # One PR for all minor/patch bumps; each major bump gets its own PR because majors
+      # can change inputs or behaviour and deserve a separate review.
+      groups:
+          github-actions-minor-patch:
+              patterns: ['*']
+              update-types: [minor, patch]
+      commit-message:
+          prefix: ci

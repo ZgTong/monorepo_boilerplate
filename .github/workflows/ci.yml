@@ -12,10 +12,12 @@ on:
 permissions:
     contents: read
 
-# One run per branch/PR: a new push cancels the previous run of the same PR.
-# Runs on main are never cancelled, so every merged commit gets a complete result.
+# PRs: one group per PR ref, so a new push cancels the previous run of the same PR.
+# main: one group per commit SHA. A concurrency group holds at most one running and one
+# pending run, and a newly queued run always replaces the pending one (even without
+# cancel-in-progress), so a shared group would drop CI results for some merged commits.
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
+    group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
     cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:

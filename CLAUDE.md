@@ -29,16 +29,16 @@ The owner works alone and relies on Claude as senior engineer, reviewer, and men
 
 ## Roadmap (living, update as phases complete)
 
-| Phase | Focus                                                                                                        | Status |
-| ----- | ------------------------------------------------------------------------------------------------------------ | ------ |
-| 0     | Monorepo, Next.js 16 frontend, Express + Prisma backend, local Postgres, Terraform skeleton, subagents       | done   |
-| 1     | Engineering baseline: strict TS everywhere, shared lint/format, unit + integration tests, GitHub Actions CI  | next   |
-| 2     | Containerise backend; Terraform modules for VPC, RDS, ECS Fargate + ALB, S3 + CloudFront; CD via GitHub OIDC |        |
-| 3     | Real domain features: API design and validation, auth, shared types/contracts between frontend and backend   |        |
-| 4     | Observability: structured logging, metrics, distributed tracing (OpenTelemetry), dashboards, alerts, SLOs    |        |
-| 5     | High availability and scale: multi-AZ, autoscaling, caching, queues/async jobs, load testing, DB performance |        |
-| 6     | Security hardening, cost awareness, DR/backups, incident runbooks                                            |        |
-| 7     | AI features in the product (LLM integration, RAG, evals) on top of the platform                              |        |
+| Phase | Focus                                                                                                        | Status      |
+| ----- | ------------------------------------------------------------------------------------------------------------ | ----------- |
+| 0     | Monorepo, Next.js 16 frontend, Express + Prisma backend, local Postgres, Terraform skeleton, subagents       | done        |
+| 1     | Engineering baseline: strict TS everywhere, shared lint/format, unit + integration tests, GitHub Actions CI  | in progress |
+| 2     | Containerise backend; Terraform modules for VPC, RDS, ECS Fargate + ALB, S3 + CloudFront; CD via GitHub OIDC |             |
+| 3     | Real domain features: API design and validation, auth, shared types/contracts between frontend and backend   |             |
+| 4     | Observability: structured logging, metrics, distributed tracing (OpenTelemetry), dashboards, alerts, SLOs    |             |
+| 5     | High availability and scale: multi-AZ, autoscaling, caching, queues/async jobs, load testing, DB performance |             |
+| 6     | Security hardening, cost awareness, DR/backups, incident runbooks                                            |             |
+| 7     | AI features in the product (LLM integration, RAG, evals) on top of the platform                              |             |
 
 ## Stack
 
@@ -62,13 +62,20 @@ docker compose up -d postgres         # local DB (-d = --detach); needs root .en
 pnpm frontend-start                   # next dev
 pnpm --filter backend dev             # backend with watch mode
 pnpm lint                             # lint every package that has a lint script (pnpm -r = --recursive)
-pnpm typecheck                        # tsc --noEmit in every package
-pnpm --filter frontend build          # static export into packages/frontend/dist
+pnpm typecheck                        # tsc --noEmit in every package that has a typecheck script
+pnpm test                             # test every package that has a test script
+pnpm build                            # build every package that has a build script (frontend: static export into packages/frontend/dist)
 pnpm --filter backend test            # vitest
 pnpm format / pnpm format:fix         # prettier check / write (config: root .prettierrc.json)
 ```
 
-The frontend has no tests yet. Its `test` script is a placeholder that exits with an error.
+The frontend has no tests yet and no `test` script, so `pnpm test` skips it.
+
+## CI (`.github/workflows/ci.yml`, ADR 0009)
+
+- One job `Verify` runs `pnpm format`, `lint`, `typecheck`, `test`, `build` on every PR and on pushes to `main`. CI calls the same root scripts as local development, so change a command in `package.json`, not in the workflow.
+- Hardening is required, not optional: workflow-level `permissions: contents: read`, actions pinned to full commit SHAs with a `# vX.Y.Z` comment, `persist-credentials: false` on checkout, `concurrency`, `timeout-minutes`. Never use `pull_request_target`. A job that needs more permissions requests them at job level.
+- Dependabot (`.github/dependabot.yml`) keeps the action pins up to date. Verify workflow changes with `actionlint` and `zizmor` (both run via Docker) before committing.
 
 ## Frontend architecture (`packages/frontend`)
 
