@@ -67,16 +67,25 @@ pnpm test                             # unit tests in every package that has a t
 pnpm test:integration                 # integration tests (backend: Testcontainers PostgreSQL, needs Docker)
 pnpm build                            # build every package that has a build script (frontend: static export into packages/frontend/dist)
 pnpm format / pnpm format:fix         # prettier check / write (config: root .prettierrc.json)
+pnpm deps:audit                       # fail on high/critical advisories (pnpm audit --audit-level high)
+pnpm audit --fix=update               # fix advisories by updating only the vulnerable packages in the lockfile
 ```
 
 The frontend has no tests yet and no `test` script, so `pnpm test` skips it.
 
-## CI (`.github/workflows/ci.yml`, ADR 0009, ADR 0010)
+## Dependencies (ADR 0011)
 
-- Two parallel jobs on every PR and on pushes to `main`. `Verify` runs `pnpm format`, `lint`, `typecheck`, `test`, `build`. `Integration tests` runs `pnpm test:integration` (Docker is available on the runner). CI calls the same root scripts as local development, so change a command in `package.json`, not in the workflow.
-- Toolchain setup (pnpm, Node, frozen install) lives in the local composite action `.github/actions/setup`. New jobs use it after `actions/checkout` instead of repeating the steps.
+- **Lockfile conflicts:** never hand-edit conflict markers in `pnpm-lock.yaml`, and never run `pnpm install` on a conflicted lockfile. pnpm 12 discards it and re-resolves everything, which silently upgrades unrelated packages. Instead, take `main`'s lockfile (`git checkout origin/main -- pnpm-lock.yaml`), resolve `package.json` by hand, run `pnpm install`, and check that `git diff` shows only the intended changes.
+- **Dependabot branches:** never push to or merge into them. Comment `@dependabot rebase`, or `@dependabot recreate` if the branch was already touched.
+- **Vulnerabilities:** fix with `pnpm audit --fix=update`. `overrides` are a last resort, only for high or critical advisories in production dependencies. An advisory that can't be fixed goes under `audit.ignore` in `pnpm-workspace.yaml`, with a reason and a review date.
+- **Install scripts:** every new package with a build script needs an explicit `allowBuilds` entry in `pnpm-workspace.yaml`. Default to `false` unless the package can't work without it.
+
+## CI (`.github/workflows/ci.yml`, ADR 0009, ADR 0010, ADR 0011)
+
+- Three parallel jobs on every PR, on pushes to `main`, weekly on `main` (Sunday 21:23 UTC) and on demand. `Verify` runs `pnpm format`, `lint`, `typecheck`, `test`, `build`. `Integration tests` runs `pnpm test:integration` (Docker is available on the runner). `Dependency audit` runs `pnpm deps:audit` with only pnpm installed, so it never executes dependency code. CI calls the same root scripts as local development, so change a command in `package.json`, not in the workflow.
+- Toolchain setup (pnpm, Node, frozen install) lives in the local composite action `.github/actions/setup`. New jobs that need dependencies use it after `actions/checkout` instead of repeating the steps.
 - Hardening is required, not optional: workflow-level `permissions: contents: read`, actions pinned to full commit SHAs with a `# vX.Y.Z` comment, `persist-credentials: false` on checkout, `concurrency`, `timeout-minutes`. Never use `pull_request_target`. A job that needs more permissions requests them at job level.
-- Dependabot (`.github/dependabot.yml`) keeps the action pins up to date. Verify workflow changes with `actionlint` and `zizmor` (both run via Docker) before committing.
+- Dependabot (`.github/dependabot.yml`) keeps the action pins and npm dependencies up to date with grouped weekly PRs. Verify workflow changes with `actionlint` and `zizmor` (both run via Docker) before committing.
 
 ## Frontend architecture (`packages/frontend`)
 
