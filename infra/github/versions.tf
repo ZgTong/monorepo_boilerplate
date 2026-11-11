@@ -9,7 +9,7 @@ terraform {
     }
   }
 
-  # Partial config: values come from backend.hcl (git-ignored, copy backend.hcl.example).
-  #   terraform init -backend-config=backend.hcl
+  # Partial config: values come from backend.s3.tfbackend (git-ignored, copy backend.s3.tfbackend.example).
+  #   terraform init -backend-config=backend.s3.tfbackend
   backend "s3" {}
 }
