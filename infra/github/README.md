@@ -23,10 +23,10 @@ Run every command from `infra/github`. The owner runs `apply`, never Claude (see
     terraform apply -var="state_bucket_name=<globally-unique-name>"
     ```
 
-2. **Backend.** Copy `backend.hcl.example` to `backend.hcl`, set the bucket name, then:
+2. **Backend.** Copy `backend.s3.tfbackend.example` to `backend.s3.tfbackend`, set the bucket name, then:
 
     ```bash
-    terraform init -backend-config=backend.hcl
+    terraform init -backend-config=backend.s3.tfbackend
     ```
 
 3. **Generate configuration from what exists today** (for the resources in `imports.tf`; the `main` ruleset in `ruleset.tf` is new and created by this stack):
