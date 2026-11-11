@@ -17,3 +17,4 @@ Create one with `/adr <topic>` in Claude Code, or copy [`template.md`](template.
 | [0009](0009-github-actions-ci.md)                          | Run CI on GitHub Actions as a single hardened job                               | Accepted |
 | [0010](0010-integration-tests-with-testcontainers.md)      | Run backend integration tests against PostgreSQL started by Testcontainers      | Accepted |
 | [0011](0011-npm-dependency-update-and-audit-strategy.md)   | Keep npm dependencies current with grouped Dependabot PRs and a pnpm audit gate | Accepted |
+| [0012](0012-manage-github-settings-with-terraform.md)      | Manage GitHub repository settings with Terraform                                | Accepted |

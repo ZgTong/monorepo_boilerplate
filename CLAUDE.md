@@ -49,7 +49,7 @@ The owner works alone and relies on Claude as senior engineer, reviewer, and men
 - **Shared ESLint config** `packages/eslint-config` (`@repo/eslint-config`, ADR 0008): ESLint 9 flat config factories `baseConfig`, `nodeConfig` and `nextConfig`. Each takes `{ tsconfigRootDir: import.meta.dirname }` and applies `@eslint/js` recommended, typescript-eslint `strictTypeChecked` + `stylisticTypeChecked` (type-aware), and Prettier last. Packages depend on it via `"workspace:*"`. Change rules there, not per package. Every package lints with `--max-warnings 0`, so warnings fail just like errors. Every linted `.ts` file must be in that package's tsconfig `include`, or type-aware linting errors out.
 - **Frontend** `packages/frontend`: Next.js 16 App Router, React 19, SCSS, static export.
 - **Backend** `packages/backend`: Express 5, TypeScript ESM, Prisma 7 + PostgreSQL 17. See `packages/backend/CLAUDE.md`.
-- **Infra** `infra/`: Terraform for AWS `ap-southeast-2`, outside the pnpm workspace. Target: ECS Fargate + RDS + S3/CloudFront. See `infra/CLAUDE.md`.
+- **Infra** `infra/`: Terraform for AWS `ap-southeast-2`, outside the pnpm workspace. Target: ECS Fargate + RDS + S3/CloudFront. GitHub repository settings and the `main` ruleset are Terraform too (`infra/github`, ADR 0012): change them there, not in the GitHub UI. See `infra/CLAUDE.md`.
 - **Decisions:** `docs/adr/`.
 
 ## Commands

@@ -22,3 +22,7 @@ dist/
 !*.tfvars.example
 crash.log
 backend.hcl
+# Saved plans (terraform plan -out=...) can contain resource attributes; never commit them.
+*.tfplan
+# Output of `terraform plan -generate-config-out`; review and move into real files.
+generated.tf
