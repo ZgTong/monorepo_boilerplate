@@ -62,7 +62,7 @@ docker compose up -d postgres         # local DB (-d = --detach); needs root .en
 pnpm frontend-start                   # next dev
 pnpm --filter backend dev             # backend with watch mode
 pnpm lint                             # lint every package that has a lint script (pnpm -r = --recursive)
-pnpm typecheck                        # tsc --noEmit in every package that has a typecheck script
+pnpm typecheck                        # tsc --noEmit in every package that has a typecheck script (frontend runs next typegen first)
 pnpm test                             # unit tests in every package that has a test script (no Docker)
 pnpm test:integration                 # integration tests (backend: Testcontainers PostgreSQL, needs Docker)
 pnpm test:e2e                         # frontend: next build, then Playwright smoke tests against dist/ (Chromium)
@@ -83,7 +83,7 @@ E2E needs a one-time browser download: `pnpm --filter frontend exec playwright i
 
 ## CI (`.github/workflows/ci.yml`, ADR 0009, ADR 0010, ADR 0011)
 
-- Four parallel jobs on every PR, on pushes to `main`, weekly on `main` (Sunday 21:23 UTC) and on demand. `Verify` runs `pnpm format`, `lint`, `typecheck`, `test`, `build`. `Integration tests` runs `pnpm test:integration` (Docker is available on the runner). `E2E tests` installs Chromium headless shell and runs `pnpm test:e2e`; on failure it uploads the Playwright report with traces as an artifact. `Dependency audit` runs `pnpm deps:audit` with only pnpm installed, so it never executes dependency code. CI calls the same root scripts as local development, so change a command in `package.json`, not in the workflow.
+- Four parallel jobs on every PR, on pushes to `main`, weekly on `main` (Sunday 21:23 UTC) and on demand. `Verify` runs `pnpm format`, `lint`, `typecheck`, `test`, `build`. `Integration tests` runs `pnpm test:integration` (Docker is available on the runner). `E2E tests` installs Chromium headless shell and runs `pnpm test:e2e`; on failure it uploads the Playwright report with traces as an artifact. `Dependency audit` runs `pnpm deps:audit` with only pnpm installed, so it never executes dependency code. CI calls the same root scripts as local development, so change a command in `package.json`, not in the workflow. Every job that installs dependencies ends with the local composite action `.github/actions/assert-clean-tree`, which fails if any step changed a tracked file or created one that is not ignored: generated files (build output, `next-env.d.ts`, test reports) must be in `.gitignore`, never committed.
 - Toolchain setup (pnpm, Node, frozen install) lives in the local composite action `.github/actions/setup`. New jobs that need dependencies use it after `actions/checkout` instead of repeating the steps.
 - Hardening is required, not optional: workflow-level `permissions: contents: read`, actions pinned to full commit SHAs with a `# vX.Y.Z` comment, `persist-credentials: false` on checkout, `concurrency`, `timeout-minutes`. Never use `pull_request_target`. A job that needs more permissions requests them at job level.
 - Dependabot (`.github/dependabot.yml`) keeps the action pins and npm dependencies up to date with grouped weekly PRs. Verify workflow changes with `actionlint` and `zizmor` (both run via Docker) before committing.
@@ -91,6 +91,7 @@ E2E needs a one-time browser download: `pnpm --filter frontend exec playwright i
 ## Frontend architecture (`packages/frontend`)
 
 - **Static export:** `next.config.js` sets `output: 'export'` and `distDir: 'dist'`. There is no Node server at runtime, so server-only features are unavailable: route handlers, `headers()`/`cookies()`, dynamic routes without `generateStaticParams`, ISR, middleware, default image optimisation. Moving off static export is a deliberate future decision (ADR) and not something to do implicitly.
+- **`next-env.d.ts` is generated and gitignored.** `next dev`, `next build` and `next typegen` rewrite it (its import paths depend on which ran last). The frontend `lint` and `typecheck` scripts run `next typegen` first, so a fresh checkout works without it. Never commit it or edit it.
 - **Page extensions** are limited to `tsx`, `ts`, `mdx`.
 - **Tests (ADR 0013):** component tests are colocated `*.test.tsx` files (Vitest, jsdom, React Testing Library, jest-dom matchers; config in `vitest.config.mts`, which is `.mts` because the package is CommonJS). Query by role and accessible name, not by class or DOM structure. Async Server Components and anything that depends on the built site are tested with Playwright in `e2e/*.spec.ts`, against `dist/` served by `sirv-cli`.
 - **Lint:** `eslint.config.mjs` uses `nextConfig()` from `@repo/eslint-config`. Stylelint 17 runs as a separate `lint:css` step, not inside the build.

@@ -6,8 +6,8 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "typecheck": "tsc --noEmit",
-        "lint": "eslint . --max-warnings 0 && pnpm lint:css",
+        "typecheck": "next typegen && tsc --noEmit",
+        "lint": "next typegen && eslint . --max-warnings 0 && pnpm lint:css",
         "lint:css": "stylelint \"src/**/*.{css,scss}\" --allow-empty-input",
         "test": "vitest run",
         "test:e2e": "next build && playwright test"
