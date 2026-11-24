@@ -44,7 +44,7 @@ The owner works alone and relies on Claude as senior engineer, reviewer, and men
 
 - **Runtime:** Node 26 (`.nvmrc`, `engines`), pnpm 12 (`packageManager` field). Prisma 7.10's preinstall check prints an "unsupported Node" warning on 26 (its `engines` field allows it); this is a known, accepted gap until Prisma 8 is stable.
 - **TypeScript:** `~6.0.3` in every package (ADR 0006). typescript-eslint does not support TS 7 yet, so don't upgrade to 7 or widen the range past 6.0.
-- **Shared versions:** dependencies used by more than one package (`typescript`, `@types/node`, `eslint`) are defined once in the `catalog:` section of `pnpm-workspace.yaml`. The packages reference them as `"catalog:"`. Change the version there, never in a package's `package.json`.
+- **Shared versions:** dependencies used by more than one package (`typescript`, `@types/node`, `eslint`, `vitest`) are defined once in the `catalog:` section of `pnpm-workspace.yaml`. The packages reference them as `"catalog:"`. Change the version there, never in a package's `package.json`.
 - **Shared TypeScript config:** every package's `tsconfig.json` extends the root `tsconfig.base.json`, which holds the strictness and module-safety flags (`strict`, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, ...). Packages add only package-specific settings: target, module system, `lib`, `types`, `jsx`, `paths`, plugins and output. Don't relax the base flags in a package. Fix the code instead. `noPropertyAccessFromIndexSignature` is on, so index-signature types such as `process.env` are read with brackets: `process.env['PORT']`.
 - **Shared ESLint config** `packages/eslint-config` (`@repo/eslint-config`, ADR 0008): ESLint 9 flat config factories `baseConfig`, `nodeConfig` and `nextConfig`. Each takes `{ tsconfigRootDir: import.meta.dirname }` and applies `@eslint/js` recommended, typescript-eslint `strictTypeChecked` + `stylisticTypeChecked` (type-aware), and Prettier last. Packages depend on it via `"workspace:*"`. Change rules there, not per package. Every package lints with `--max-warnings 0`, so warnings fail just like errors. Every linted `.ts` file must be in that package's tsconfig `include`, or type-aware linting errors out.
 - **Frontend** `packages/frontend`: Next.js 16 App Router, React 19, SCSS, static export.
@@ -65,13 +65,14 @@ pnpm lint                             # lint every package that has a lint scrip
 pnpm typecheck                        # tsc --noEmit in every package that has a typecheck script
 pnpm test                             # unit tests in every package that has a test script (no Docker)
 pnpm test:integration                 # integration tests (backend: Testcontainers PostgreSQL, needs Docker)
+pnpm test:e2e                         # frontend: next build, then Playwright smoke tests against dist/ (Chromium)
 pnpm build                            # build every package that has a build script (frontend: static export into packages/frontend/dist)
 pnpm format / pnpm format:fix         # prettier check / write (config: root .prettierrc.json)
 pnpm deps:audit                       # fail on high/critical advisories (pnpm audit --audit-level high)
 pnpm audit --fix=update               # fix advisories by updating only the vulnerable packages in the lockfile
 ```
 
-The frontend has no tests yet and no `test` script, so `pnpm test` skips it.
+E2E needs a one-time browser download: `pnpm --filter frontend exec playwright install chromium` (add `--with-deps` on a fresh Linux/WSL machine; it uses `sudo` for OS libraries).
 
 ## Dependencies (ADR 0011)
 
@@ -82,7 +83,7 @@ The frontend has no tests yet and no `test` script, so `pnpm test` skips it.
 
 ## CI (`.github/workflows/ci.yml`, ADR 0009, ADR 0010, ADR 0011)
 
-- Three parallel jobs on every PR, on pushes to `main`, weekly on `main` (Sunday 21:23 UTC) and on demand. `Verify` runs `pnpm format`, `lint`, `typecheck`, `test`, `build`. `Integration tests` runs `pnpm test:integration` (Docker is available on the runner). `Dependency audit` runs `pnpm deps:audit` with only pnpm installed, so it never executes dependency code. CI calls the same root scripts as local development, so change a command in `package.json`, not in the workflow.
+- Four parallel jobs on every PR, on pushes to `main`, weekly on `main` (Sunday 21:23 UTC) and on demand. `Verify` runs `pnpm format`, `lint`, `typecheck`, `test`, `build`. `Integration tests` runs `pnpm test:integration` (Docker is available on the runner). `E2E tests` installs Chromium headless shell and runs `pnpm test:e2e`; on failure it uploads the Playwright report with traces as an artifact. `Dependency audit` runs `pnpm deps:audit` with only pnpm installed, so it never executes dependency code. CI calls the same root scripts as local development, so change a command in `package.json`, not in the workflow.
 - Toolchain setup (pnpm, Node, frozen install) lives in the local composite action `.github/actions/setup`. New jobs that need dependencies use it after `actions/checkout` instead of repeating the steps.
 - Hardening is required, not optional: workflow-level `permissions: contents: read`, actions pinned to full commit SHAs with a `# vX.Y.Z` comment, `persist-credentials: false` on checkout, `concurrency`, `timeout-minutes`. Never use `pull_request_target`. A job that needs more permissions requests them at job level.
 - Dependabot (`.github/dependabot.yml`) keeps the action pins and npm dependencies up to date with grouped weekly PRs. Verify workflow changes with `actionlint` and `zizmor` (both run via Docker) before committing.
@@ -91,6 +92,7 @@ The frontend has no tests yet and no `test` script, so `pnpm test` skips it.
 
 - **Static export:** `next.config.js` sets `output: 'export'` and `distDir: 'dist'`. There is no Node server at runtime, so server-only features are unavailable: route handlers, `headers()`/`cookies()`, dynamic routes without `generateStaticParams`, ISR, middleware, default image optimisation. Moving off static export is a deliberate future decision (ADR) and not something to do implicitly.
 - **Page extensions** are limited to `tsx`, `ts`, `mdx`.
+- **Tests (ADR 0013):** component tests are colocated `*.test.tsx` files (Vitest, jsdom, React Testing Library, jest-dom matchers; config in `vitest.config.mts`, which is `.mts` because the package is CommonJS). Query by role and accessible name, not by class or DOM structure. Async Server Components and anything that depends on the built site are tested with Playwright in `e2e/*.spec.ts`, against `dist/` served by `sirv-cli`.
 - **Lint:** `eslint.config.mjs` uses `nextConfig()` from `@repo/eslint-config`. Stylelint 17 runs as a separate `lint:css` step, not inside the build.
 - **Path aliases** (`packages/frontend/tsconfig.json`): `@src/*`, `@app/*`, `@components/*`, `@data/*`, `@hooks/*`, `@utils/*`, `@lib/*` map to `src/<name>/*`, and `@root/*` maps to the package root.
 - With `noUncheckedIndexedAccess`, indexed access (`arr[0]`, `record[key]`) is typed `T | undefined`. Narrow the value before using it.

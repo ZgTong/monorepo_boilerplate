@@ -85,6 +85,44 @@ jobs:
             - name: Integration tests
               run: pnpm test:integration
 
+    # Browser smoke tests against the built static export (ADR 0013). Its own job because it
+    # downloads a browser and builds the frontend again; sharing Verify's build via artifacts
+    # would cost more upload/download time than the build itself at this size.
+    e2e:
+        name: E2E tests
+        runs-on: ubuntu-24.04
+        timeout-minutes: 15
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - name: Set up toolchain
+              uses: ./.github/actions/setup # zizmor: ignore[self-repository]
+
+            # The browser build is tied to the installed @playwright/test version, so this always
+            # matches the lockfile. --with-deps installs the OS libraries (apt) Chromium needs;
+            # --only-shell skips full Chrome, since headless runs use chromium-headless-shell.
+            # Not cached: Playwright advises against it, because restoring the cache takes about
+            # as long as the download and the OS libraries would still need installing.
+            - name: Install Playwright browser
+              run: pnpm --filter frontend exec playwright install --with-deps --only-shell chromium
+
+            - name: E2E tests
+              run: pnpm test:e2e
+
+            # The HTML report includes the traces of retried tests: open it with
+            # `pnpm --filter frontend exec playwright show-report <dir>` after downloading.
+            # Uploaded on success too, so a flaky test (passed on retry) still has its trace.
+            - name: Upload Playwright report
+              if: ${{ !cancelled() }}
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: playwright-report
+                  path: packages/frontend/playwright-report/
+                  retention-days: 7
+
     # Fails on high/critical advisories in the lockfile (ADR 0011). A separate job so a new
     # advisory is reported as its own check and does not hide lint or test results.
     # Accepted risks are listed under audit.ignore in pnpm-workspace.yaml.
