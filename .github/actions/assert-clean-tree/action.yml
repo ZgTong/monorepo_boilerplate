@@ -1,0 +1,20 @@
+# Fails the job if the steps before it changed a tracked file or created one that is not
+# ignored. Builds and tests must not modify the source tree: a generated file that was
+# committed by mistake, or is missing from .gitignore, shows up here. Run it as the last
+# step that touches the working tree in every job that installs dependencies.
+name: Assert clean working tree
+description: Fail if earlier steps left changed or new non-ignored files
+
+runs:
+    using: composite
+    steps:
+        - name: Check for uncommitted changes
+          shell: bash
+          run: |
+              changes="$(git status --porcelain --untracked-files=all)"
+              if [ -n "$changes" ]; then
+                  echo "::error::Earlier steps changed or created files that are not ignored:"
+                  echo "$changes"
+                  git diff
+                  exit 1
+              fi

@@ -5,6 +5,10 @@ dist/
 *.tsbuildinfo
 .*.env
 
+# Rewritten by every next dev/build/typegen (its paths depend on which one ran last).
+# Next.js says to ignore it; `pnpm typecheck` regenerates it with `next typegen`.
+next-env.d.ts
+
 # Playwright output: HTML report, per-test artifacts (traces, screenshots), sharded blobs
 playwright-report/
 test-results/

@@ -67,6 +67,9 @@ jobs:
             - name: Build
               run: pnpm build
 
+            - name: Assert clean working tree
+              uses: ./.github/actions/assert-clean-tree # zizmor: ignore[self-repository]
+
     # Runs in parallel with Verify: it needs Docker for Testcontainers (preinstalled on
     # GitHub-hosted Ubuntu runners) and is slower, so it is kept out of the fast job (ADR 0010).
     integration:
@@ -84,6 +87,9 @@ jobs:
 
             - name: Integration tests
               run: pnpm test:integration
+
+            - name: Assert clean working tree
+              uses: ./.github/actions/assert-clean-tree # zizmor: ignore[self-repository]
 
     # Browser smoke tests against the built static export (ADR 0013). Its own job because it
     # downloads a browser and builds the frontend again; sharing Verify's build via artifacts
@@ -111,6 +117,9 @@ jobs:
 
             - name: E2E tests
               run: pnpm test:e2e
+
+            - name: Assert clean working tree
+              uses: ./.github/actions/assert-clean-tree # zizmor: ignore[self-repository]
 
             # The HTML report includes the traces of retried tests: open it with
             # `pnpm --filter frontend exec playwright show-report <dir>` after downloading.
