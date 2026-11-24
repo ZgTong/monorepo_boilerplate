@@ -47,6 +47,10 @@ resource "github_repository_ruleset" "protect_main" {
         context        = "Dependency audit"
         integration_id = local.github_actions_app_id
       }
+      required_check {
+        context        = "E2E tests"
+        integration_id = local.github_actions_app_id
+      }
     }
   }
 }

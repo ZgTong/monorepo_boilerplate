@@ -5,6 +5,11 @@ dist/
 *.tsbuildinfo
 .*.env
 
+# Playwright output: HTML report, per-test artifacts (traces, screenshots), sharded blobs
+playwright-report/
+test-results/
+blob-report/
+
 # Claude Code per-user settings (and the temp files it writes while saving them);
 # team-wide settings belong in .claude/settings.json
 .claude/settings.local.json*

@@ -4,6 +4,7 @@ catalog:
     '@types/node': ^26.6.6
     eslint: ^9.39.5
     typescript: ~6.0.3
+    vitest: ^5.0.5
 # Dependency install scripts run arbitrary code, so each one is an explicit decision.
 # Allow only what must compile or download to work; deny optional native speed-ups.
 allowBuilds:

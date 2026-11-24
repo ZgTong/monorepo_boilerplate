@@ -11,6 +11,13 @@ export function nextConfig({ tsconfigRootDir }) {
     return defineConfig([
         nextVitals,
         baseConfig({ tsconfigRootDir }),
-        globalIgnores(['.next/**', 'next-env.d.ts']),
+        // Playwright writes reports and traces (bundled JS) into these; never lint them.
+        globalIgnores([
+            '.next/**',
+            'next-env.d.ts',
+            'playwright-report/**',
+            'test-results/**',
+            'blob-report/**',
+        ]),
     ]);
 }
